@@ -128,7 +128,9 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# OS and IDE specific config files
 .DS_Store
+.vscode/
 
 # ignore large data files
 data/*
