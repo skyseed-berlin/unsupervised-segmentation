@@ -10,6 +10,7 @@ argparse = "*"
 opencv-python = "*"
 matplotlib = "*"
 ipykernel = "*"
+pytest = "*"
 
 [dev-packages]
 
