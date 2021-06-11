@@ -2,55 +2,57 @@ import numpy as np
 import os 
 import cv2
 
-PATH = os.path.expanduser("~/Documents/Skyseed/unsupervised-segmentation/results/kmeans/")
-
-small_test_img = os.path.join(PATH, "9054717_5512099_segmented_k=3.png")
-img = cv2.imread(os.path.join(small_test_img))
-
-# set sliding window parameters
-FLIGHT_HEIGHT = 9
-TARGET_WINDOW_SIZE_IN_M = 2
-# set later as hyperparameter - work with grid first (easier as it needs no averaging step)
-# STRIDE = 2
-
-TARGET_SEGMENT = [96,107,113]
-
-gsd = FLIGHT_HEIGHT/18.9 # for our Drone with Phantom P4 Multispectral camera
-window_size = round(TARGET_WINDOW_SIZE_IN_M/gsd)
-
-# label segments > determine which one is the good one
-
-windows = np.lib.stride_tricks.sliding_window_view(img, (window_size, window_size, img.shape[2]))
-windows_flat = windows.reshape(-1, window_size, window_size, img.shape[2])
-windows_flat.shape
-
 class SpatialPooling:
 
-    def __init__(self):
+    def __init__(self, img, flight_height, window_size_in_m, target_segment):
 
-        self.input_image = None
+        self.img = img
+        self.target_segment = target_segment
 
-def perc_segment(window, target_segment):
+        self.gsd = flight_height/18.9
+        self.window_size = round(window_size_in_m/self.gsd)
 
-    """
-        For a 3d numpy array (window) of arbitrary shape, return the number of occurences (pixels)
-        that belong to a target segment, exluding pixels that have value zero for all bands as they
-        are assumed to happen only at the margin.
+    @staticmethod
+    def perc_segment(window, target_segment):
 
-        Note that length of target_segment and depth of window array have to match!
-    """
+        """
+            For a 3d numpy array (window) of arbitrary shape, return the number of occurences (pixels)
+            that belong to a target segment, exluding pixels that have value zero for all bands as they
+            are assumed to happen only at the margin.
 
-    assert window.shape[2] == len(target_segment)
+            Note that length of target_segment and depth of window array have to match!
+        """
 
-    # detect black pixels to be ignored
-    ignoremask = np.all(window == [0]*window.shape[2], axis=2) 
-    ignore_count = np.count_nonzero(ignoremask)
+        assert window.shape[2] == len(target_segment)
 
-    # create indicator for target segment
-    target_segment_count = np.count_nonzero(np.all(window == target_segment, axis = 2))
-    
-    perc_target_segment = target_segment_count/(window.shape[0]*window.shape[1] - ignore_count)
+        # detect black pixels to be ignored
+        ignoremask = np.all(window == [0]*window.shape[2], axis=2) 
+        ignore_count = np.count_nonzero(ignoremask)
 
-    # replace non-black pixels with target segment percentage and reduce to one value per pixel
-    window_out = np.float16(window)
-    window_out[~np.array(ignoremask), :] = [perc_target_segment]*window.shape[2]
+        # create indicator for target segment
+        target_segment_count = np.count_nonzero(np.all(window == target_segment, axis = 2))
+            
+        perc_target_segment = target_segment_count/(window.shape[0]*window.shape[1] - ignore_count)
+
+        # replace non-black pixels with target segment percentage and reduce to one value per pixel
+        window_out = np.float16(window)
+        window_out[~np.array(ignoremask), :] = [perc_target_segment]*window.shape[2]
+
+        return window_out[:,:,0]
+
+
+    def fraction_of_target_segment(self):
+
+        """
+            Returns a float32 numpy array with the fraction of target segment contained in a specific window.
+
+            The method will result in one constant value for each window. 
+        """
+
+        windows = np.lib.stride_tricks.sliding_window_view(self.img, (self.window_size, self.window_size, self.img.shape[2]))
+        windows_flat = windows.reshape(-1, self.window_size, self.window_size, self.img.shape[2])
+
+        result = np.apply_along_axis(lambda x: self.perc_segment(window=x, target_segment=self.target_segment), 0, windows_flat)
+        self.result = result
+
+        return result
