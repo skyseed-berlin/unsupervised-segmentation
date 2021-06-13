@@ -52,8 +52,11 @@ def array_margins(image_depth, array_nomargins, request):
 
 # start testing
 
-def test_baseline_nomargins(testarray, target_segment): 
-    test = SpatialPooling.perc_segment(window=testarray, target_segment=target_segment)
+def test_baseline_nomargins(array_nomargins, target_segment): 
+
+    testresult = SpatialPooling.perc_segment(window=array_nomargins, target_segment=target_segment)
+
+    assert False, print(testresult)
 
 
 
