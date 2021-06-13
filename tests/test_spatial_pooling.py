@@ -27,7 +27,7 @@ def array_nomargins(image_depth, target_segment, request):
     
     np.random.seed(207)
 
-    sample_array = np.random.randint(255, (4,4,image_depth))
+    sample_array = np.random.randint(255, size=(4,4,image_depth))
     idx = np.random.randint(sample_array.shape[0], size=request.param)
 
     sample_array[idx, idx, :] = target_segment
@@ -56,7 +56,9 @@ def test_baseline_nomargins(array_nomargins, target_segment):
 
     testresult = SpatialPooling.perc_segment(window=array_nomargins, target_segment=target_segment)
 
-    assert False, print(testresult)
+    assert testresult.shape[0:2] == array_nomargins.shape[0:2], \
+        "First two dimensions of result array should be the same as for input array."
+
 
 
 
