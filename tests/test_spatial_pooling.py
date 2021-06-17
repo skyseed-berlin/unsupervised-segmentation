@@ -1,6 +1,7 @@
 from src.models.spatial_pooling import SpatialPooling
 import pytest 
-import numpy as np 
+import numpy as np
+from itertools import permutations 
 
 # test baseline window function for percentage of target segment. 
 
@@ -27,12 +28,18 @@ def array_nomargins(image_depth, target_segment, request):
     
     np.random.seed(207)
 
+    # this doesn't work correclty still (same goes for black pixel insertion below)
     sample_array = np.random.randint(255, size=(4,4,image_depth))
-    idx = np.random.randint(sample_array.shape[0], size=request.param)
+    
+    perms = list(permutations(np.arange(4)+1, 2))
+    idx = np.random.choice(len(perms), size=request.param, replace=False)
 
-    sample_array[idx, idx, :] = target_segment
+    x = [perms[i][0] for i in idx]
+    y = [perms[i][1] for i in idx], 
 
-    return sample_array
+    sample_array[x, y, :] = target_segment
+
+    return sample_array, request.param
 
 
 # varying fractions of entirely black pixels (0 - half - all)
@@ -47,18 +54,24 @@ def array_margins(image_depth, array_nomargins, request):
 
     sample_array = array_nomargins[idx, idx, :] = black
 
-    return sample_array
+    return sample_array, request.param
 
 
 # start testing
 
 def test_baseline_nomargins(array_nomargins, target_segment): 
 
-    testresult = SpatialPooling.perc_segment(window=array_nomargins, target_segment=target_segment)
+    testresult = SpatialPooling.perc_segment(window=array_nomargins[0], target_segment=target_segment)
 
-    assert testresult.shape[0:2] == array_nomargins.shape[0:2], \
+    assert testresult.shape[0:2] == array_nomargins[0].shape[0:2], \
         "First two dimensions of result array should be the same as for input array."
 
+    assert len(np.unique(testresult)) == 1, \
+        "Result array should have constant value"
+
+    true_value = array_nomargins[1]/16
+    assert (testresult == true_value).all(), \
+        "Result value should be " + str(true_value)
 
 
 
