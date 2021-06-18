@@ -66,6 +66,7 @@ def array_margins(image_depth, array_nomargins, request):
     return sample_array, array_nomargins[1], request.param
 
 
+
 # start testing
 
 def test_baseline_nomargins(array_nomargins, target_segment): 
@@ -112,3 +113,15 @@ def test_margins_ignored_correctly(target_segment):
 
     assert (np.delete(testresult, 1, 1) == 0).all(), \
         "Black pixels should have value zero at correct positions after transformation." 
+
+
+def test_array_level():
+
+    img = np.random.randint(255, size=(13,13,3))
+    
+    target_segment = img[1,1,:] 
+
+    pool = SpatialPooling(img=img, flight_height=10, window_size_in_m=2, target_segment=target_segment)
+    result = pool.fraction_of_target_segment()
+
+    #assert False, print(str(result.shape))

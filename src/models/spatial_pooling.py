@@ -47,8 +47,6 @@ class SpatialPooling:
             return window_out
 
        
-
-
     def fraction_of_target_segment(self):
 
         """
