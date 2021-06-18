@@ -30,13 +30,23 @@ class SpatialPooling:
         # create indicator for target segment
         target_segment_count = np.count_nonzero(np.all(window == target_segment, axis = 2))
             
-        perc_target_segment = target_segment_count/(window.shape[0]*window.shape[1] - ignore_count)
+        try:
+            perc_target_segment = target_segment_count/(window.shape[0]*window.shape[1] - ignore_count)
 
-        # replace non-black pixels with target segment percentage and reduce to one value per pixel
-        window_out = np.float16(window)
-        window_out[~np.array(ignoremask), :] = [perc_target_segment]*window.shape[2]
+             # replace non-black pixels with target segment percentage and reduce to one value per pixel
+            window_out = np.float16(window)
+            window_out[~np.array(ignoremask), :] = [perc_target_segment]*window.shape[2]
 
-        return window_out[:,:,0]
+            return window_out[:,:,0]
+        
+        # if all pixels in a window are black: return zero array
+        except ZeroDivisionError:
+
+            window_out = np.zeros((window.shape[0], window.shape[1]))
+
+            return window_out
+
+       
 
 
     def fraction_of_target_segment(self):
