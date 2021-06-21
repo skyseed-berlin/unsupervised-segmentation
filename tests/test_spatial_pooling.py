@@ -1,7 +1,7 @@
 from src.models.spatial_pooling import SpatialPooling
 import pytest 
 import numpy as np
-from itertools import permutations 
+from itertools import product
 
 # test baseline window function for percentage of target segment. 
 
@@ -31,9 +31,7 @@ def array_nomargins(image_depth, target_segment, request):
     # this doesn't work correclty still (same goes for black pixel insertion below)
     sample_array = np.random.randint(255, size=(4,4,image_depth))
     
-    perms = list(permutations(np.arange(4), 2))
-    for i in np.arange(0,4):
-        perms.append((i,i))
+    perms = list(product(np.arange(4), np.arange(4)))
     idx = np.random.choice(len(perms), size=request.param, replace=False)
 
     x = [perms[i][0] for i in idx]
@@ -51,9 +49,7 @@ def array_margins(image_depth, array_nomargins, request):
     # introduce black pixels
     black = np.array([0]*image_depth)
 
-    perms = list(permutations(np.arange(4), 2))
-    for i in np.arange(0,4):
-        perms.append((i,i))
+    perms = list(product(np.arange(4), np.arange(4)))
 
     idx = np.random.choice(len(perms), size=request.param, replace=False)
 
@@ -124,4 +120,5 @@ def test_array_level():
     pool = SpatialPooling(img=img, flight_height=10, window_size_in_m=2, target_segment=target_segment)
     result = pool.fraction_of_target_segment()
 
-    #assert False, print(str(result.shape))
+    return result
+    # assert False, result.shape
