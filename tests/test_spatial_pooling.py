@@ -119,7 +119,7 @@ def test_array_level():
 
     img = np.random.randint(255, size=(13,13,3))
     
-    target_segment = img[1,1,:] 
+    target_segment = img[1,1,:]
 
     pool = SpatialPooling(img=img, flight_height=10, window_size_in_m=2, target_segment=target_segment)
     result = pool.fraction_of_target_segment()

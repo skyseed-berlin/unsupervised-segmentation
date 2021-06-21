@@ -58,7 +58,8 @@ class SpatialPooling:
         windows = np.lib.stride_tricks.sliding_window_view(self.img, (self.window_size, self.window_size, self.img.shape[2]))
         windows_flat = windows.reshape(-1, self.window_size, self.window_size, self.img.shape[2])
 
-        result = np.apply_along_axis(lambda x: self.perc_segment(window=x, target_segment=self.target_segment), 0, windows_flat)
+        # might be slow for large images! 
+        result = np.array([self.perc_segment(window=windows_flat[i, :, :, :], target_segment=self.target_segment) for i in np.arange(windows_flat.shape[0])])
         self.result = result
 
         return result
