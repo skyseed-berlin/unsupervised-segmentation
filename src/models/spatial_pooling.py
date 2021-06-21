@@ -1,4 +1,5 @@
 import numpy as np 
+from itertools import product
 
 class SpatialPooling:
 
@@ -56,7 +57,12 @@ class SpatialPooling:
         """
 
         windows = np.lib.stride_tricks.sliding_window_view(self.img, (self.window_size, self.window_size, self.img.shape[2]))
-        windows_flat = windows.reshape(-1, self.window_size, self.window_size, self.img.shape[2])
+
+        # only keep windows with stride=window_size
+        indices = [i for i in list(product(np.arange(windows.shape[0]),np.arange(windows.shape[1]))) if i[0]%self.window_size == 0 and i[1]%self.window_size == 0]
+        windows_flat = np.array([windows[i, j, 0, :, :, :] for i,j in indices])
+
+        #windows_flat = windows.reshape(-1, self.window_size, self.window_size, self.img.shape[2])
 
         # might be slow for large images! 
         result = np.array([self.perc_segment(window=windows_flat[i, :, :, :], target_segment=self.target_segment) for i in np.arange(windows_flat.shape[0])])
