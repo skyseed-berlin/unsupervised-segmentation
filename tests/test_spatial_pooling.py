@@ -111,11 +111,15 @@ def test_margins_ignored_correctly(target_segment):
         "Black pixels should have value zero at correct positions after transformation." 
 
 
-def test_array_level():
+@pytest.fixture(scope="module", params=[(4,4,3), (4,8,5), (5,5,3)])
+def img_dimensions(request):
+    return request.param
+
+def test_array_level(img_dimensions):
 
     np.random.seed(253)
 
-    img = np.random.randint(255, size=(4,4,3))
+    img = np.random.randint(255, size=img_dimensions)
     
     target_segment = img[1,1,:]
 
@@ -138,4 +142,5 @@ def test_array_level():
         "black pixels in input image should all have value zero in output image"
 
 
-# test what happens in case image_size%window_size > 0
+# test what happens in case image_size%window_size > 0 --> does not work yet! fails at reshaping. look at how windows look like in that case
+# introduce sort of a zero-padding in that case?
