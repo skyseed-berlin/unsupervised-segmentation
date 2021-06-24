@@ -111,7 +111,7 @@ def test_margins_ignored_correctly(target_segment):
         "Black pixels should have value zero at correct positions after transformation." 
 
 
-@pytest.fixture(scope="module", params=[(4,4,3), (4,8,5), (5,5,3)])
+@pytest.fixture(scope="module", params=[(4,4,3), (4,8,5), (5,5,3), (4,13,5)])
 def img_dimensions(request):
     return request.param
 
@@ -128,6 +128,9 @@ def test_array_level(img_dimensions):
 
     assert (result == pool.result).all(), \
             "class attribute should be equal to returned object"
+
+    assert pool.result.shape[0:1] == pool.img.shape[0:1], \
+        "result width and height should be the same as in input image"
 
     assert pool.result.shape[0:2] == pool.img.shape[0:2], \
         "result should have same width and height as input image"

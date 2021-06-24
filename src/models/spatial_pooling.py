@@ -56,7 +56,13 @@ class SpatialPooling:
 
         self.window_size = window_size
 
-        windows = np.lib.stride_tricks.sliding_window_view(self.img, (self.window_size, self.window_size, self.img.shape[2]))
+        # zero-padding if applicable to avoid incomplete remainder windows at the edges
+    
+        padding_w = window_size - self.img.shape[0]%window_size 
+        padding_h = window_size - self.img.shape[1]%window_size
+        self.img_padded = np.pad(self.img, [(0, padding_w), (0, padding_h), (0, 0)], constant_values=0)            
+
+        windows = np.lib.stride_tricks.sliding_window_view(self.img_padded, (self.window_size, self.window_size, self.img_padded.shape[2]))
 
         # only keep windows with stride=window_size
         indices = [i for i in list(product(np.arange(windows.shape[0]),np.arange(windows.shape[1]))) if i[0]%self.window_size == 0 and i[1]%self.window_size == 0]
@@ -70,5 +76,9 @@ class SpatialPooling:
 
         # intermediate step required here once we allow for stride < window_size
         # reshape to original image size
-        self.result = stack_image_windows(arr=result, shape=self.img.shape)
+        self.result = stack_image_windows(arr=result, shape=self.img_padded.shape)
+        
+        # cut padded margins
+        self.result = self.result[:self.img.shape[0], :self.img.shape[1]]
+
         return self.result
