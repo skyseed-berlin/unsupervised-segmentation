@@ -1,15 +1,13 @@
 import numpy as np 
 from itertools import product
+from src.helper.formatting import stack_image_windows
 
 class SpatialPooling:
 
-    def __init__(self, img, flight_height, window_size_in_m, target_segment):
+    def __init__(self, img, target_segment):
 
         self.img = img
         self.target_segment = target_segment
-
-        self.gsd = flight_height/18.9
-        self.window_size = round(window_size_in_m/self.gsd)
 
     @staticmethod
     def perc_segment(window, target_segment):
@@ -48,7 +46,7 @@ class SpatialPooling:
             return window_out
 
        
-    def fraction_of_target_segment(self):
+    def fraction_of_target_segment(self, window_size):
 
         """
             Returns a float32 numpy array with the fraction of target segment contained in a specific window.
@@ -56,16 +54,21 @@ class SpatialPooling:
             The method will result in one constant value for each window. 
         """
 
+        self.window_size = window_size
+
         windows = np.lib.stride_tricks.sliding_window_view(self.img, (self.window_size, self.window_size, self.img.shape[2]))
 
         # only keep windows with stride=window_size
         indices = [i for i in list(product(np.arange(windows.shape[0]),np.arange(windows.shape[1]))) if i[0]%self.window_size == 0 and i[1]%self.window_size == 0]
-        windows_flat = np.array([windows[i, j, 0, :, :, :] for i,j in indices])
+        self.windows_flat = np.array([windows[i, j, 0, :, :, :] for i,j in indices])
 
-        #windows_flat = windows.reshape(-1, self.window_size, self.window_size, self.img.shape[2])
+        # this is necessary when skipping the above reduction
+        # windows_flat = windows.reshape(-1, self.window_size, self.window_size, self.img.shape[2])
 
         # might be slow for large images! 
-        result = np.array([self.perc_segment(window=windows_flat[i, :, :, :], target_segment=self.target_segment) for i in np.arange(windows_flat.shape[0])])
-        self.result = result
+        result = np.array([self.perc_segment(window=self.windows_flat[i, :, :, :], target_segment=self.target_segment) for i in np.arange(self.windows_flat.shape[0])])
 
-        return result
+        # intermediate step required here once we allow for stride < window_size
+        # reshape to original image size
+        self.result = stack_image_windows(arr=result, shape=self.img.shape)
+        return self.result

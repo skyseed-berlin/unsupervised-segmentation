@@ -113,12 +113,29 @@ def test_margins_ignored_correctly(target_segment):
 
 def test_array_level():
 
-    img = np.random.randint(255, size=(13,13,3))
+    np.random.seed(253)
+
+    img = np.random.randint(255, size=(4,4,3))
     
     target_segment = img[1,1,:]
 
-    pool = SpatialPooling(img=img, flight_height=10, window_size_in_m=2, target_segment=target_segment)
-    result = pool.fraction_of_target_segment()
+    pool = SpatialPooling(img=img, target_segment=target_segment)
+    result = pool.fraction_of_target_segment(window_size=2)
 
-    return result
-    # assert False, result.shape
+    assert (result == pool.result).all(), \
+            "class attribute should be equal to returned object"
+
+    assert pool.result.shape[0:2] == pool.img.shape[0:2], \
+        "result should have same width and height as input image"
+
+    assert len(pool.result.shape) == 2, \
+        "result image should have depth 1!"
+
+    assert (pool.result[0:2, 0:2] == 0.25).all(), \
+        "pixels belonging to window where target segment can be found should have a constant value of 0.25"
+
+    assert (pool.result[2:, 2:] == 0).all(), \
+        "black pixels in input image should all have value zero in output image"
+
+
+# test what happens in case image_size%window_size > 0
