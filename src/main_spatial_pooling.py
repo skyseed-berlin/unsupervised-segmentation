@@ -3,7 +3,7 @@ import argparse
 import cv2 as cv
 import numpy as np 
 
-def main(input, window_size, target_segment, output):
+def main(input_img, window_size, target_segment, output):
 
     """
         Takes pre-segmented input image and saves a greyscale output image reflecting
@@ -12,13 +12,26 @@ def main(input, window_size, target_segment, output):
         Example usage: main(input="path/to/input_image.png", target_segment=[5,5,5], output="path/to/output_image.png")
     """
 
-    img = cv.imread(input)
+    img = cv.imread(input_img)
 
-    # for now use target_segment=[55, 68, 71] for example image
+    # if segments unknown, pick target segment via command line prompt
+    if target_segment is None:
+        
+        segments = np.unique(img.reshape(-1, img.shape[2]), axis=0)
+
+        print("Please choose target segment:")
+        for idx, element in enumerate(segments):    
+            print("{}) {}".format(idx+1,element))
+        
+        i = input("Enter number: ")
+        
+        try:
+            if 0 < int(i) <= len(segments):
+                target_segment = segments[int(i)-1]
+        except:
+            pass
 
     # possible: pick segment with the lowest total channel value that is not pitch black
-    # segments = np.unique(img.reshape(-1, img.shape[2]), axis=0)
-
     # darkness = np.sum(segments, axis=0)
     # target_segment = segments[np.where(darkness == np.amin(darkness[darkness>0])), :].flatten()
 
@@ -40,7 +53,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Spatial Smoothing of a Segmented Image')
 
     parser.add_argument('--input', help='input image file name', required=True)
-    parser.add_argument('--target_segment', help='channel values of target segment', required=True)
+    parser.add_argument('--target_segment', help='channel values of target segment', required=False)
     parser.add_argument('--output', help='output image file name', required=True)
     parser.add_argument('--window_size_px', help='size of sliding window in pixel', required=False)
     parser.add_argument('--window_size_m', help='size of sliding window in m (gsd)', required=False)
@@ -59,6 +72,13 @@ if __name__ == "__main__":
     else:
         parser.error("either --window_size_px or --window_size_m and --gsd have to be set!")
 
+    if args.target_segment is not None:
+
+        target_segment = eval(args.target_segment)
+
+    else:
+        target_segment = None
+
     # run main fcn 
 
-    main(input=args.input, window_size=window_size, target_segment=eval(args.target_segment), output=args.output)
+    main(input_img=args.input, window_size=window_size, target_segment=target_segment, output=args.output)
