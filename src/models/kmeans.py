@@ -10,7 +10,7 @@ class KMeansSegmentation:
 
         self._image = image
         self._K = K
-        self.flat_image = np.float32(image.reshape((-1, 3)))
+        self.flat_image = np.float32(image.reshape((-1, image.shape[2])))
       
     def clean_margins(self):
 
@@ -47,15 +47,20 @@ class KMeansSegmentation:
         # can also save this somewhere instead
         plt.show()
 
-    def fit(self, max_iter, epsilon, attempts):
+    def fit(self, max_iter, epsilon, attempts, margins=True):
 
         self._optimization = {"max_iter": max_iter, "epsilon": epsilon, "attempts": attempts}
 
-        try: 
-            img = self.flat_image_cleaned
-        except AttributeError:
+        if margins:
+            
+            try: 
+                img = self.flat_image_cleaned
+            
+            except AttributeError:
 
-            img = self.clean_margins()
+                img = self.clean_margins()
+        else:
+            img = self.flat_image 
 
         result = cv2.kmeans(img, self._K, None,
                             criteria=((cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER), max_iter, epsilon),
