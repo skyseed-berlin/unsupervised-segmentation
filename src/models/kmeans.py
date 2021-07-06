@@ -68,6 +68,10 @@ class KMeansSegmentation:
                             flags=cv2.KMEANS_PP_CENTERS)
 
         self.centers = result[2]
-        self.segmented_image = self.centers[result[1].flatten()]
+        segmented = self.centers[result[1].flatten()]
+
+        rowmask = np.all(self.flat_image == [0,0,0], axis = 1)
+        self.segmented_image = np.copy(self.flat_image)
+        self.segmented_image[~np.array(rowmask), :] = segmented
 
         return self.segmented_image

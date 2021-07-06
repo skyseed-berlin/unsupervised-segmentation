@@ -11,7 +11,9 @@ def main(input_img, output, k, margins=True):
     # declare optimization parameters as top level at some point
     segmented = km.fit(max_iter=100, epsilon=0.001, attempts=10, margins=margins)
 
-    cv.imwrite(filename=output, img=segmented)
+    reshaped = segmented.reshape(img.shape)
+
+    cv.imwrite(filename=output, img=reshaped)
 
 
 if __name__ == "__main__":
