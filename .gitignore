@@ -134,6 +134,7 @@ dmypy.json
 
 # ignore large data files
 data/*
+!data/sample_data/
 results/*
 
 
