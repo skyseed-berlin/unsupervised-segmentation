@@ -11,6 +11,9 @@ opencv-python = "*"
 matplotlib = "*"
 ipykernel = "*"
 pytest = "*"
+tifffile = "*"
+imagecodecs = "*"
+rasterio = "*"
 
 [dev-packages]
 pylint = "*"
