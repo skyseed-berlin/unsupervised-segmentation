@@ -15,3 +15,4 @@ data/sample_data/shapefile_test.shp filter=lfs diff=lfs merge=lfs -text
 data/sample_data/shapefile_test_out.prj filter=lfs diff=lfs merge=lfs -text
 data/sample_data/example_blue.tif filter=lfs diff=lfs merge=lfs -text
 data/sample_data/example_green.tif filter=lfs diff=lfs merge=lfs -text
+data/sample_data/ filter=lfs diff=lfs merge=lfs -text
