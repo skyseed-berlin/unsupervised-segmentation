@@ -1,17 +1,31 @@
 from src.models.kmeans import KMeansSegmentation
 import cv2 as cv
+import rasterio
 import argparse
+import pathlib
+import numpy 
 
 def main(input_img, output, k, margins=True):
 
-    img = cv.imread(input_img)
+    file_type = pathlib.Path(input_img).suffix
 
+    if file_type in [".jpg", ".png"]:
+        img = cv.imread(input_img)
+    
+    elif file_type == ".tif":
+        raster = rasterio.open(input_img)
+        img = numpy.transpose(raster.read())
+        numpy.nan_to_num(img, copy=False, nan=0.0)
+    
+    else: 
+        raise ValueError("Unsupported file type: " + file_type)
+        
     km = KMeansSegmentation(image=img, K=k)
 
     # declare optimization parameters as top level at some point
     segmented = km.fit(max_iter=100, epsilon=0.001, attempts=10, margins=margins)
 
-    reshaped = segmented.reshape(img.shape)
+    reshaped = segmented.reshape((img.shape[0], img.shape[1], -1))
 
     cv.imwrite(filename=output, img=reshaped)
 
