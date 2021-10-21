@@ -14,7 +14,8 @@ def main(input_img, output, k, margins=True):
     
     elif file_type == ".tif":
         raster = rasterio.open(input_img)
-        img = numpy.transpose(raster.read())
+        img = raster.read()
+        img = numpy.reshape((-1, img.shape[0], img.shape[1]))
         numpy.nan_to_num(img, copy=False, nan=0.0)
     
     else: 
