@@ -1,4 +1,4 @@
-# Perform k-means segmentation on an input image represented by a 2d numpy array with any number of color bands
+# Perform k-means segmentation on an input image represented by a 3d numpy array with any number of color bands
 
 import numpy as np 
 import cv2
@@ -10,7 +10,8 @@ class KMeansSegmentation:
 
         self._image = image
         self._K = K
-        self.flat_image = np.float32(image.reshape((-1, image.shape[2])))
+        self.number_of_bands = image.shape[2]
+        self.flat_image = np.float32(image.reshape((-1, self.number_of_bands)))
       
     def clean_margins(self):
 
@@ -67,11 +68,17 @@ class KMeansSegmentation:
                             attempts=attempts,
                             flags=cv2.KMEANS_PP_CENTERS)
 
-        self.centers = result[2]
+        if self.number_of_bands <= 3:
+            self.centers = result[2]
+
+        else:
+           # fake coloring in case of more than three color bands
+            self.centers = np.vstack(list(np.random.choice(range(356), size=3)) for i in range(self._K))
+            
         segmented = self.centers[result[1].flatten()]
 
-        rowmask = np.all(self.flat_image == [0,0,0], axis = 1)
-        self.segmented_image = np.copy(self.flat_image)
+        rowmask = np.all(self.flat_image == [0]*self.number_of_bands, axis = 1)
+        self.segmented_image = np.copy(self.flat_image[:, 0:3])
         self.segmented_image[~np.array(rowmask), :] = segmented
 
         return self.segmented_image
