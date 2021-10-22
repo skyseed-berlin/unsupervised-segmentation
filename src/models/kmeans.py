@@ -3,6 +3,7 @@
 import numpy as np 
 import cv2
 import matplotlib.pyplot as plt
+import seaborn as sns 
 
 class KMeansSegmentation:
 
@@ -73,7 +74,8 @@ class KMeansSegmentation:
 
         else:
            # fake coloring in case of more than three color bands
-            self.centers = np.vstack(list(np.random.choice(range(356), size=3)) for i in range(self._K))
+           colors = sns.color_palette("tab20")[0:self._K]
+           self.centers = np.asarray([np.asarray(x) for x in colors])
             
         segmented = self.centers[result[1].flatten()]
 
