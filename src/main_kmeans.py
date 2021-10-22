@@ -1,5 +1,5 @@
 from src.models.kmeans import KMeansSegmentation
-import cv2 as cv
+import cv2 
 import rasterio
 import argparse
 import pathlib
@@ -10,7 +10,7 @@ def main(input_img, output, k, margins=True):
     file_type = pathlib.Path(input_img).suffix
 
     if file_type in [".jpg", ".png"]:
-        img = cv.imread(input_img)
+        img = cv2.imread(input_img)
     
     elif file_type == ".tif":
         raster = rasterio.open(input_img)
@@ -28,10 +28,10 @@ def main(input_img, output, k, margins=True):
     reshaped = segmented.reshape((img.shape[0], img.shape[1], -1))
 
     if file_type == ".tif":
-        transposed = cv.rotate(cv.flip(reshaped, 0), cv.cv2.ROTATE_90_CLOCKWISE)
-        cv.imwrite(filename=output, img=transposed)
+        transposed = cv2.rotate(cv2.flip(reshaped, 0), cv2.ROTATE_90_CLOCKWISE)
+        cv2.imwrite(filename=output, img=transposed)
     else:
-        cv.imwrite(filename=output, img=reshaped)
+        cv2.imwrite(filename=output, img=reshaped)
 
 
 if __name__ == "__main__":

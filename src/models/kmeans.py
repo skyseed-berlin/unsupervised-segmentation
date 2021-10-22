@@ -75,7 +75,7 @@ class KMeansSegmentation:
         else:
            # fake coloring in case of more than three color bands
            colors = sns.color_palette("tab20")[0:self._K]
-           self.centers = np.asarray([np.asarray(x) for x in colors])
+           self.centers = np.asarray([np.asarray([i*255 for i in x]) for x in colors])
             
         segmented = self.centers[result[1].flatten()]
 
