@@ -14,8 +14,7 @@ def main(input_img, output, k, margins=True):
     
     elif file_type == ".tif":
         raster = rasterio.open(input_img)
-        img = raster.read()
-        img = numpy.reshape((-1, img.shape[0], img.shape[1]))
+        img = numpy.transpose(raster.read())
         numpy.nan_to_num(img, copy=False, nan=0.0)
     
     else: 
@@ -28,7 +27,11 @@ def main(input_img, output, k, margins=True):
 
     reshaped = segmented.reshape((img.shape[0], img.shape[1], -1))
 
-    cv.imwrite(filename=output, img=reshaped)
+    if file_type == ".tif":
+        transposed = cv.rotate(cv.flip(reshaped, 0), cv.cv2.ROTATE_90_CLOCKWISE)
+        cv.imwrite(filename=output, img=transposed)
+    else:
+        cv.imwrite(filename=output, img=reshaped)
 
 
 if __name__ == "__main__":
