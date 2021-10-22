@@ -17,3 +17,4 @@ data/sample_data/example_blue.tif filter=lfs diff=lfs merge=lfs -text
 data/sample_data/example_green.tif filter=lfs diff=lfs merge=lfs -text
 data/sample_data/ filter=lfs diff=lfs merge=lfs -text
 data/sample_data/result.png filter=lfs diff=lfs merge=lfs -text
+data/sample_data/result.tif filter=lfs diff=lfs merge=lfs -text
