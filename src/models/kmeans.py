@@ -77,7 +77,8 @@ class KMeansSegmentation:
         segmented = self.centers[result[1].flatten()]
 
         rowmask = np.all(self.flat_image == [0]*self.number_of_bands, axis = 1)
-        self.segmented_image = np.copy(self.flat_image[:, 0:3])
+        self.segmented_image = np.vstack([self.flat_image[:, 0]]*3).transpose()
+            
         self.segmented_image[~np.array(rowmask), :] = segmented
 
         return self.segmented_image
