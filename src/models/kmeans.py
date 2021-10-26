@@ -69,13 +69,10 @@ class KMeansSegmentation:
                             attempts=attempts,
                             flags=cv2.KMEANS_PP_CENTERS)
 
-        if self.number_of_bands <= 3:
-            self.centers = result[2]
-
-        else:
-           # fake coloring in case of more than three color bands
-           colors = sns.color_palette("tab20")[0:self._K]
-           self.centers = np.asarray([np.asarray([i*255 for i in x]) for x in colors])
+    
+        # fake coloring cluster centers
+        colors = sns.color_palette("tab20")[0:self._K]
+        self.centers = np.asarray([np.asarray([i*255 for i in x]) for x in colors])
             
         segmented = self.centers[result[1].flatten()]
 
