@@ -1,5 +1,6 @@
 import rasterio
 import numpy as np 
+import argparse
 
 def main(file_list, path_out):
 
@@ -17,4 +18,10 @@ def main(file_list, path_out):
                 print(band[~np.isnan(band)].max())
                 dst.write_band(id, src1.read(1))
 
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser(description="Stacking color bands of input images and save as one single file.")
+
+    parser.add_argument('--input', nargs='+', help='input image file names (required)', required=True)
+    parser.add_argument('--output', help='output image file name (required)', required=True)
 
